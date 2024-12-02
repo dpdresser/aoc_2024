@@ -12,9 +12,7 @@ pub fn find_distance(left: &mut Vec<i32>, right: &mut Vec<i32>) -> Result<i32, B
     let distance = left
         .iter()
         .zip(right.iter())
-        .map(|(left, right)| { 
-            (right - left).abs()
-        })
+        .map(|(left, right)| (right - left).abs())
         .sum();
 
     Ok(distance)
@@ -27,12 +25,7 @@ pub fn calculate_similarity(left: &Vec<i32>, right: &Vec<i32>) -> Result<i32, Bo
 
     let similarity = left
         .iter()
-        .map(|left| {
-            right
-                .iter()
-                .filter(|right| *right == left)
-                .count() as i32 * *left
-        })
+        .map(|left| right.iter().filter(|right| *right == left).count() as i32 * *left)
         .sum();
 
     Ok(similarity)
@@ -90,6 +83,9 @@ mod tests {
     #[test]
     fn day_01_test_similarity_with_input() {
         let (mut left, mut right) = load_text_vectors().unwrap();
-        assert_eq!(calculate_similarity(&mut left, &mut right).unwrap(), 22539317);
+        assert_eq!(
+            calculate_similarity(&mut left, &mut right).unwrap(),
+            22539317
+        );
     }
 }
