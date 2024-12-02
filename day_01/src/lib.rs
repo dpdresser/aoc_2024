@@ -20,6 +20,24 @@ pub fn find_distance(left: &mut Vec<i32>, right: &mut Vec<i32>) -> Result<i32, B
     Ok(distance)
 }
 
+pub fn calculate_similarity(left: &Vec<i32>, right: &Vec<i32>) -> Result<i32, Box<dyn Error>> {
+    if left.len() != right.len() {
+        return Err("Vectors must be of the same length".into());
+    }
+
+    let similarity = left
+        .iter()
+        .map(|left| {
+            right
+                .iter()
+                .filter(|right| *right == left)
+                .count() as i32 * *left
+        })
+        .sum();
+
+    Ok(similarity)
+}
+
 pub fn load_text_vectors() -> Result<(Vec<i32>, Vec<i32>), Box<dyn Error>> {
     let file_path = "input.txt";
 
@@ -57,10 +75,21 @@ mod tests {
     }
 
     #[test]
-    fn day_01_test_input() {
+    fn day_01_test_distance_with_input() {
         let (mut left, mut right) = load_text_vectors().unwrap();
         assert_eq!(find_distance(&mut left, &mut right).unwrap(), 1941353);
-        // println!("{}", find_distance(&mut left, &mut right).unwrap());
-        // cargo test -- --nocapture
+    }
+
+    #[test]
+    fn day_01_test_similarity_simple() {
+        let mut left = vec![3, 4, 2, 1, 3, 3];
+        let mut right = vec![4, 3, 5, 3, 9, 3];
+        assert_eq!(calculate_similarity(&mut left, &mut right).unwrap(), 31);
+    }
+
+    #[test]
+    fn day_01_test_similarity_with_input() {
+        let (mut left, mut right) = load_text_vectors().unwrap();
+        assert_eq!(calculate_similarity(&mut left, &mut right).unwrap(), 22539317);
     }
 }
