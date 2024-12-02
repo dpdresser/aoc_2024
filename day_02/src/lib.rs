@@ -26,17 +26,19 @@ pub fn is_safe(report: &Vec<i32>) -> bool {
 }
 
 pub fn is_safe_with_dampener(report: &Vec<i32>) -> bool {
-    let mut dampener_counter = 0;
-
-    for i in 0..report.len() {
-        let mut temp_report = report.clone();
-        temp_report.remove(i);
-        if is_safe(&temp_report) {
-            dampener_counter += 1;
+    match is_safe(&report) {
+        true => return true,
+        false => {
+            for i in 0..report.len() {
+                let mut temp_report = report.clone();
+                temp_report.remove(i);
+                if is_safe(&temp_report) {
+                    return true
+                }
+            }
+            return false
         }
     }
-
-    dampener_counter > 0
 }
 
 pub fn count_safe_rows(apply_dampener: bool) -> Result<i32, Box<dyn Error>> {
