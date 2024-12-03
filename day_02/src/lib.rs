@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fs;
 
-pub fn is_safe(report: &Vec<i32>) -> bool {
+pub fn is_safe(report: &[i32]) -> bool {
     let safe_positive = [1, 2, 3];
     let safe_negative = [-1, -2, -3];
 
@@ -13,25 +13,21 @@ pub fn is_safe(report: &Vec<i32>) -> bool {
     let is_safe_positive = differences.iter().all(|item| safe_positive.contains(item));
     let is_safe_negative = differences.iter().all(|item| safe_negative.contains(item));
 
-    if is_safe_positive || is_safe_negative {
-        return true;
-    } else {
-        return false;
-    }
+    is_safe_positive || is_safe_negative
 }
 
-pub fn is_safe_with_dampener(report: &Vec<i32>) -> bool {
-    match is_safe(&report) {
-        true => return true,
+pub fn is_safe_with_dampener(report: &[i32]) -> bool {
+    match is_safe(report) {
+        true => true,
         false => {
             for i in 0..report.len() {
-                let mut temp_report = report.clone();
+                let mut temp_report = report.to_owned();
                 temp_report.remove(i);
                 if is_safe(&temp_report) {
                     return true;
                 }
             }
-            return false;
+            false
         }
     }
 }
@@ -44,13 +40,13 @@ pub fn count_safe_rows(apply_dampener: bool) -> Result<i32, Box<dyn Error>> {
     let count_safe = text
         .lines()
         .filter(|line| {
-            let mut line_slice: Vec<i32> = line
+            let line_slice: Vec<i32> = line
                 .split_whitespace()
                 .map(|num| num.parse().unwrap())
                 .collect();
             match apply_dampener {
-                false => is_safe(&mut line_slice),
-                true => is_safe_with_dampener(&mut line_slice),
+                false => is_safe(&line_slice),
+                true => is_safe_with_dampener(&line_slice),
             }
         })
         .count() as i32;

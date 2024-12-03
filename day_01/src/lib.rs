@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fs;
 
-pub fn find_distance(left: &mut Vec<i32>, right: &mut Vec<i32>) -> Result<i32, Box<dyn Error>> {
+pub fn find_distance(left: &mut [i32], right: &mut [i32]) -> Result<i32, Box<dyn Error>> {
     if left.len() != right.len() {
         return Err("Vectors must be of the same length".into());
     }
@@ -18,7 +18,7 @@ pub fn find_distance(left: &mut Vec<i32>, right: &mut Vec<i32>) -> Result<i32, B
     Ok(distance)
 }
 
-pub fn calculate_similarity(left: &Vec<i32>, right: &Vec<i32>) -> Result<i32, Box<dyn Error>> {
+pub fn calculate_similarity(left: &[i32], right: &[i32]) -> Result<i32, Box<dyn Error>> {
     if left.len() != right.len() {
         return Err("Vectors must be of the same length".into());
     }
