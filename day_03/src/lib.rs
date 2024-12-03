@@ -69,6 +69,31 @@ pub fn parse_text_conditional_with_regex(text: &str) -> usize {
     sum
 }
 
+pub fn parse_text_conditional_with_regex_new(text: &str) -> usize {
+    let re = Regex::new(r"(do\(\)|don't\(\))|mul\((\d{1,3}),(\d{1,3})\)").unwrap();
+
+    let mut enabled = true;
+    let mut sum = 0;
+
+    for capture in re.captures_iter(text) {
+        if let Some(flag) = capture.get(1) {
+            match flag.as_str() {
+                "do()" => enabled = true,
+                "don't()" => enabled = false,
+                _ => {}
+            }
+        } else if enabled {
+            if let (Some(a), Some(b)) = (capture.get(2), capture.get(3)) {
+                let a: usize = a.as_str().parse().unwrap();
+                let b: usize = b.as_str().parse().unwrap();
+                sum += a * b;
+            }
+        }
+    }
+
+    sum
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -95,5 +120,17 @@ mod tests {
     fn day_03_test_part_2() {
         let text = &load_input();
         assert_eq!(parse_text_conditional_with_regex(text), 82733683);
+    }
+
+    #[test]
+    fn day_03_test_simple_part_2_new() {
+        let text = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
+        assert_eq!(parse_text_conditional_with_regex_new(text), 48);
+    }
+
+    #[test]
+    fn day_03_test_part_2_new() {
+        let text = &load_input();
+        assert_eq!(parse_text_conditional_with_regex_new(text), 82733683);
     }
 }
