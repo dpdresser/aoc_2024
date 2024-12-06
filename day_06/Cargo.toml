@@ -1,0 +1,9 @@
+[package]
+name = "day_06"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+indicatif = "0.17.9"
+ndarray = "0.16.1"
+rayon = "1.10.0"
