@@ -243,22 +243,32 @@ mod tests {
         let room_map = create_map(&input);
         let initial_location = find_initial_location(&room_map, '^');
 
-        let mut loop_count = 0;
+        let mut guard = Guard::new(initial_location.unwrap(), Direction::Up);
+        let _ = guard.track_guard(&room_map);
+        let mut unique_locations = HashSet::new();
+        for &entry in guard.location_log.values() {
+            unique_locations.insert(entry.0);
+        }
 
-        room_map
-            .indexed_iter()
-            .filter(|(_, &c)| c == '.')
-            .for_each(|((row, column), _)| {
-                let mut cloned_map = room_map.clone();
-                cloned_map[[row, column]] = '#';
+        let loop_count = Arc::new(AtomicI32::new(0));
+        let total_dots = unique_locations.len();
+        let progress_bar = ProgressBar::new(total_dots as u64);
 
+        unique_locations.par_iter().for_each(|location| {
+            let mut cloned_map = room_map.clone();
+            if cloned_map[[location.row as usize, location.column as usize]] == '.' {
+                cloned_map[[location.row as usize, location.column as usize]] = '#';
+                let loop_count = loop_count.clone();
                 let mut guard = Guard::new(initial_location.unwrap(), Direction::Up);
                 if guard.track_guard(&cloned_map).is_err() {
-                    loop_count += 1;
+                    loop_count.fetch_add(1, Ordering::SeqCst);
                 }
-            });
+                progress_bar.inc(1);
+            }
+        });
 
-        assert_eq!(loop_count, 6);
+        progress_bar.finish_with_message("Done");
+        assert_eq!(loop_count.load(Ordering::SeqCst), 6);
     }
 
     #[test]
@@ -267,27 +277,29 @@ mod tests {
         let room_map = create_map(&input);
         let initial_location = find_initial_location(&room_map, '^');
 
+        let mut guard = Guard::new(initial_location.unwrap(), Direction::Up);
+        let _ = guard.track_guard(&room_map);
+        let mut unique_locations = HashSet::new();
+        for &entry in guard.location_log.values() {
+            unique_locations.insert(entry.0);
+        }
+
         let loop_count = Arc::new(AtomicI32::new(0));
-        let total_dots = room_map.iter().filter(|&&c| c == '.').count();
+        let total_dots = unique_locations.len();
         let progress_bar = ProgressBar::new(total_dots as u64);
 
-        room_map
-            .indexed_iter()
-            .filter(|(_, &c)| c == '.')
-            .collect::<Vec<_>>()
-            .par_iter()
-            .for_each(|&((row, column), _)| {
-                let mut cloned_map = room_map.clone();
-                cloned_map[[row, column]] = '#';
+        unique_locations.par_iter().for_each(|location| {
+            let mut cloned_map = room_map.clone();
+            if cloned_map[[location.row as usize, location.column as usize]] == '.' {
+                cloned_map[[location.row as usize, location.column as usize]] = '#';
                 let loop_count = loop_count.clone();
-
                 let mut guard = Guard::new(initial_location.unwrap(), Direction::Up);
                 if guard.track_guard(&cloned_map).is_err() {
                     loop_count.fetch_add(1, Ordering::SeqCst);
                 }
-
                 progress_bar.inc(1);
-            });
+            }
+        });
 
         progress_bar.finish_with_message("Done");
         assert_eq!(loop_count.load(Ordering::SeqCst), 1729);
